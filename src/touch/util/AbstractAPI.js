@@ -36,7 +36,7 @@ Ext.define('Emergence.touch.util.AbstractAPI', {
 
     // @inheritdoc
     buildUrl: function(path, options) {
-        var include = options.include,
+        var include = options && options.include,
             url = this.callParent(arguments);
 
         if (include) {
