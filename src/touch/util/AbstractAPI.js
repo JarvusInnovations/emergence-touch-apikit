@@ -72,10 +72,18 @@ Ext.define('Emergence.touch.util.AbstractAPI', {
     },
 
     applyUser: function(user) {
-        var userModel = this.getUserModel();
+        var me = this,
+            userModel = me.getUserModel(),
+            existingUser;
 
         if (userModel && !user.isModel) {
-            user = Ext.create(userModel, user);
+            // don't create a new user model instance if one already exists and its ID matches
+            if (user.ID && (existingUser = me.getUser()) && user.ID == existingUser.getId()) {
+                existingUser.setData(user);
+                user = existingUser;
+            } else {
+                user = Ext.create(userModel, user);
+            }
         }
 
         return user || null;
@@ -83,6 +91,14 @@ Ext.define('Emergence.touch.util.AbstractAPI', {
 
     updateUser: function(user, oldUser) {
         this.fireEvent('userchange', user, oldUser);
+    },
+
+    applyUserInclude: function(include) {
+        if (include != '*' && !Ext.isArray(include)) {
+            include = include.split(',');
+        }
+
+        return include;
     },
 
     getSessionInclude: function() {
@@ -136,7 +152,7 @@ Ext.define('Emergence.touch.util.AbstractAPI', {
     },
 
     /**
-     * Login to a remote Slate instance
+     * Login to a user account
      * @param {String} hostname
      * @param {String} username
      * @param {String} password
@@ -169,7 +185,7 @@ Ext.define('Emergence.touch.util.AbstractAPI', {
     },
 
     /**
-     * Logout from remote Slate instance
+     * Logout from a user account
      * @param {Function} callback A function to call and pass the new client data to when it is available
      * @param {Object} scope Scope for the callback function
      */
@@ -183,5 +199,50 @@ Ext.define('Emergence.touch.util.AbstractAPI', {
                 Ext.callback(callback, scope, [false, response]);
             }
         });
+    },
+
+
+    /**
+     * Register a user account
+     * @param {Function} callback A function to call and pass the new client data to when it is available
+     * @param {Object} scope Scope for the callback function
+     */
+    register: function(data, callback, scope) {
+        var me = this,
+            include = me.getUserInclude();
+
+        if (!Ext.Array.contains(include, 'validationErrors')) {
+            include = Ext.Array.clone(include);
+            include.push('validationErrors');
+        }
+
+        me.request({
+            method: 'POST',
+            url: '/register',
+            params: data,
+            include: include,
+            success: function(response) {
+                if (response.data && response.data.success) {
+                    me.setUser(response.data.data);
+                    Ext.callback(callback, scope, [true, response]);
+                } else {
+                    Ext.callback(callback, scope, [false, response]);
+                }
+            }
+        });
     }
+
+    // recoverPassword: function(data, callback, scope) {
+    //     var me = this;
+
+    //     me.request({
+    //         method: 'POST',
+    //         url: '/register/recover',
+    //         params: data,
+    //         success: function(response) {
+    //             me.fireEvent('passwordrecovered', response);
+    //             Ext.callback(callback, scope, [response.data.success, response]);
+    //         }
+    //     });
+    // }
 });
