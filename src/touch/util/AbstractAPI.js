@@ -230,19 +230,20 @@ Ext.define('Emergence.touch.util.AbstractAPI', {
                 }
             }
         });
+    },
+
+    recoverPassword: function(username, callback, scope) {
+        var me = this;
+
+        me.request({
+            method: 'POST',
+            url: '/register/recover',
+            params: {
+                username: username
+            },
+            success: function(response) {
+                Ext.callback(callback, scope, [response.data && response.data.success, response]);
+            }
+        });
     }
-
-    // recoverPassword: function(data, callback, scope) {
-    //     var me = this;
-
-    //     me.request({
-    //         method: 'POST',
-    //         url: '/register/recover',
-    //         params: data,
-    //         success: function(response) {
-    //             me.fireEvent('passwordrecovered', response);
-    //             Ext.callback(callback, scope, [response.data.success, response]);
-    //         }
-    //     });
-    // }
 });
