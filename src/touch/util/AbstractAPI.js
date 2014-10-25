@@ -216,6 +216,10 @@ Ext.define('Emergence.touch.util.AbstractAPI', {
             include.push('validationErrors');
         }
 
+        if (data.Password && !data.PasswordConfirm) {
+            data.PasswordConfirm = data.Password;
+        }
+
         me.request({
             method: 'POST',
             url: '/register',
