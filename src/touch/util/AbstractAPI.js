@@ -237,13 +237,26 @@ Ext.define('Emergence.touch.util.AbstractAPI', {
     },
 
     recoverPassword: function(username, callback, scope) {
-        var me = this;
-
-        me.request({
+        this.request({
             method: 'POST',
             url: '/register/recover',
             params: {
                 username: username
+            },
+            success: function(response) {
+                Ext.callback(callback, scope, [response.data && response.data.success, response]);
+            }
+        });
+    },
+
+    changePassword: function(newPassword, oldPassword, callback, scope) {
+        this.request({
+            method: 'POST',
+            url: '/profile/password',
+            params: {
+                Password: newPassword,
+                PasswordConfirm: newPassword,
+                OldPassword: oldPassword
             },
             success: function(response) {
                 Ext.callback(callback, scope, [response.data && response.data.success, response]);
