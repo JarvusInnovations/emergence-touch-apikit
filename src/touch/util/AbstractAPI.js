@@ -262,5 +262,37 @@ Ext.define('Emergence.touch.util.AbstractAPI', {
                 Ext.callback(callback, scope, [response.data && response.data.success, response]);
             }
         });
+    },
+
+    uploadProfilePhoto: function(file, primary, callback, scope) {
+        var me = this,
+            form = new FormData();
+
+        form.append('photoFile', file);
+
+        if (primary) {
+            form.append('primary', 'true');
+        }
+
+        me.request({
+            method: 'POST',
+            url: '/profile/uploadphoto',
+            rawData: form,
+            success: function(response) {
+                var user = me.getUser(),
+                    success = response.data && response.data.success,
+                    mediaData = success && response.data.data;
+
+                if (success) {
+                    user.set({
+                        PrimaryPhotoID: mediaData.ID,
+                        PrimaryPhoto: mediaData
+                    });
+                    user.commit();
+                }
+
+                Ext.callback(callback, scope, [success, response, mediaData]);
+            }
+        });
     }
 });
