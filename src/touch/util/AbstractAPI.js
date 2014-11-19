@@ -294,5 +294,26 @@ Ext.define('Emergence.touch.util.AbstractAPI', {
                 Ext.callback(callback, scope, [success, response, mediaData]);
             }
         });
+    },
+    
+    uploadMedia: function(mediaFile, progress, finished, scope) {
+        var form = new FormData();
+
+        form.append('mediaFile', mediaFile);
+
+        this.request({
+            method: 'POST',
+            url: '/media/upload',
+            rawData: form,
+            progress: function(e) {
+                var done = e.position || e.loaded,
+                    total = e.totalSize || e.loaded;
+
+                Ext.callback(progress, scope, [done, total]);
+            },
+            success: function(response) {
+                Ext.callback(finished, scope, [response.data && response.data.success, response.data.data]);
+            }
+        });
     }
 });
