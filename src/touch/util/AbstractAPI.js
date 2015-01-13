@@ -129,7 +129,7 @@ Ext.define('Emergence.touch.util.AbstractAPI', {
      * @param {Function} callback A function to call and pass the new client data to when it is available
      * @param {Object} scope Scope for the callback function
      */
-    getSessionData: function(callback, scope) {
+    loadSessionData: function(callback, scope) {
         var me = this;
 
         me.request({
